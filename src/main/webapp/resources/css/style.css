@@ -1,0 +1,21 @@
+.square {
+  width: 60px;
+  height: 60px;
+}
+.square-even {
+  background-color: saddlebrown;
+}
+.square-odd {
+  background-color: floralwhite;
+}
+.draught {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+}
+.draught-white {
+  background-color: aliceblue;
+}
+.draught-black {
+  background-color: black;
+}

@@ -1,17 +1,15 @@
 package ru.shashki.server.jsf.view;
 
-import org.primefaces.model.diagram.DefaultDiagramModel;
-import org.primefaces.model.diagram.Element;
-import org.primefaces.model.diagram.endpoint.DotEndPoint;
-import org.primefaces.model.diagram.endpoint.EndPoint;
-import org.primefaces.model.diagram.endpoint.EndPointAnchor;
-import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
+import io.snapfaces.faces.event.ClickEvent;
+import io.snapfaces.faces.model.DefaultSnapModel;
+import ru.shashki.server.jsf.util.shashki.Board;
+import ru.shashki.server.jsf.util.shashki.BoardBackgroundLayer;
 import ru.shashki.server.jsf.util.shashki.Draught;
 import ru.shashki.server.jsf.util.shashki.Square;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Model;
-import java.io.Serializable;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,118 +17,90 @@ import java.io.Serializable;
  * Date: 25.04.15
  * Time: 7:05
  */
-@Model
-public class PlayView implements Serializable {
+@ViewScoped
+@ManagedBean
+public class PlayView extends BaseView {
 
-    private DefaultDiagramModel model;
+    private DefaultSnapModel model;
 
-    private double deskSide = 27;
-    private double OFFSET_X = 2;
+    private int deskSide = 600;
+    private int OFFSET_X = 30;
 
     private int rows = 8;
     private int cols = 8;
 
     private Square[][] gameBoard = new Square[rows][cols];
+    private Boolean white;
+
+    private Draught prevClicked;
+    private Board board;
+    private double draughtRadius;
+    private String draughtWhiteColor;
+    private String draughtBlackColor;
+    private String draughtMineColor;
+    private String deskSquareColor;
+    private String fillDeskColor;
 
     @PostConstruct
     public void init() {
-        model = new DefaultDiagramModel();
-        model.setMaxConnections(-1);
+        white = Boolean.valueOf(getContext().getExternalContext().getRequestParameterMap().get("white"));
+        model = new DefaultSnapModel();
 
-        boolean lastColor = false;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                if (lastColor) {
-                    Square square = new Square(deskSide, rows, cols, i, j, OFFSET_X);
-                    gameBoard[i][j] = square;
-                    model.addElement(square);
-                }
-                // Toggle lastcolor
-                lastColor = !lastColor;
-            }
-            // Switch starting color for next row
-            lastColor = !lastColor;
-        }
+        fillDeskColor = "#8b4513";
+        BoardBackgroundLayer backgroundLayer = new BoardBackgroundLayer(deskSide, deskSide - OFFSET_X, OFFSET_X,
+                rows, cols, fillDeskColor);
+        model.addGroup(backgroundLayer);
 
-        Draught draught = new Draught(deskSide, rows, cols, 0, 7, true, OFFSET_X);
-        model.addElement(draught);
+        draughtWhiteColor = "#f0ffff";
+        draughtBlackColor = "#a9a9a9";
+        board = new Board(backgroundLayer, rows, cols, white, draughtWhiteColor, draughtBlackColor);
+        model.addGroup(board);
+
+        draughtRadius = board.getMineDraughts().get(0).getR();
+        draughtMineColor = board.getMineDraughts().get(0).getFill();
+        deskSquareColor = board.getSquare(0, 1).getFill();
     }
 
-    private EndPoint createEndPoint(EndPointAnchor anchor) {
-        DotEndPoint endPoint = new DotEndPoint(anchor);
-        endPoint.setStyle("{fillStyle:'#404a4e'}");
-        endPoint.setHoverStyle("{fillStyle:'#20282b'}");
-
-        return endPoint;
-    }
-
-    private void drawDesk() {
-        Element mainRect = new Element();
-        mainRect.setDraggable(false);
-        mainRect.setStyleClass("main-rect");
-        model.addElement(mainRect);
-
-        boolean lastColor = false;
-        for (int i = 0; i < rows; i++) {
-            int j = 0;
-//            for (int j = 0; j < cols; j++) {
-            if (lastColor) {
-                Square square = new Square(deskSide, rows, cols, i, j, OFFSET_X);
-                gameBoard[i][j] = square;
-                model.addElement(square);
-
-                // текст для отладки
-//            Text t = new Text(i + " " + j, "sanse", 12);
-//            t.setX(square.getX() + 5);
-//            t.setY(square.getY() + 20);
-//            add(t);
-            }
-            // Toggle lastcolor
-            lastColor = !lastColor;
-        }
-        // Switch starting color for next row
-//            lastColor = !lastColor;
-//        }
-    }
-
-    public Square[][] getGameBoard() {
-        return gameBoard;
-    }
-
-    public Square getSquare(int row, int col) {
-        if (inBounds(row, col)) {
-            return gameBoard[row][col];
-        }
-        return null;
-    }
-
-    public Square getSquare(double x, double y) {
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                Square square = getSquare(i, j);
-//                if (square != null && square.contains(x, y)) {
-//                    return square;
-//                }
-            }
-        }
-        return null;
-    }
-
-    public boolean inBounds(int row, int col) {
-        return row >= 0 && row < rows && col >= 0 && col < cols;
-    }
-
-    private EndPoint createRectangleEndPoint(EndPointAnchor anchor) {
-        RectangleEndPoint endPoint = new RectangleEndPoint(anchor);
-        endPoint.setScope("network");
-        endPoint.setSource(true);
-        endPoint.setStyle("{fillStyle:'#98AFC7'}");
-        endPoint.setHoverStyle("{fillStyle:'#5C738B'}");
-
-        return endPoint;
-    }
-
-    public DefaultDiagramModel getModel() {
+    public DefaultSnapModel getModel() {
         return model;
+    }
+
+    public void onClick(ClickEvent event) {
+        if (event.getTarget() instanceof Draught) {
+            Draught clicked = (Draught) event.getTarget();
+            if (prevClicked != null) {
+                // TODO брать цвета от родителей
+                prevClicked.updateShape();
+            }
+            clicked.setFill("red");
+            board.resetDeskDrawing();
+            board.highlightAllowedMoves(clicked);
+            prevClicked = clicked;
+        } else if (event.getTarget() instanceof Square) {
+            Square square = (Square) event.getTarget();
+            board.moveDraught(prevClicked, square);
+        }
+
+        System.out.println(event.getTarget());
+    }
+
+    public double getDraughtRadius() {
+        return draughtRadius;
+    }
+
+    public String getDraughtWhiteColor() {
+        return draughtWhiteColor;
+    }
+
+    public String getDraughtBlackColor() {
+        return draughtBlackColor;
+    }
+
+    public String getDraughtMineColor() {
+        return draughtMineColor;
+    }
+
+    public String getDeskSquareColor() {
+        return deskSquareColor;
     }
 }

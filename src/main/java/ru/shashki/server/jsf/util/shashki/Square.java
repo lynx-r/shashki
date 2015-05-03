@@ -1,9 +1,9 @@
 package ru.shashki.server.jsf.util.shashki;
 
 
-import org.primefaces.model.diagram.Element;
-import org.primefaces.model.diagram.endpoint.BlankEndPoint;
-import org.primefaces.model.diagram.endpoint.EndPointAnchor;
+import io.snapfaces.faces.model.element.Rect;
+
+import java.util.Arrays;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,21 +11,21 @@ import org.primefaces.model.diagram.endpoint.EndPointAnchor;
  * Date: 07.12.13
  * Time: 21:07
  */
-public class Square extends Element {
+public class Square extends Rect {
 
     private final int row;
     private final int col;
     private final int rows;
     private final int cols;
-    private final double side;
+    private final double deskSide;
     private boolean occupied;
     private Draught occupant;
     private double strokeLineWidth = 1.5;
     private String[] alph = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
     private double offsetX;
 
-    public Square(double side, int rows, int cols, int row, int col, double offsetX) {
-        this.side = side;
+    public Square(double deskSide, int rows, int cols, int row, int col, double offsetX, String fillColor) {
+        this.deskSide = deskSide;
         this.row = row;
         this.col = col;
         this.rows = rows;
@@ -38,14 +38,7 @@ public class Square extends Element {
         updateShape();
 
         setDraggable(false);
-        String type = "";
-        if (row % 2 == 0) {
-            type = col % 2 == 0 ? "square-odd" : "square-even";
-        } else {
-            type = col % 2 == 0 ? "square-even" : "square-odd";
-        }
-        setStyleClass("square " + type);
-        addEndPoint(new BlankEndPoint(EndPointAnchor.AUTO_DEFAULT));
+        setFill(fillColor);
     }
 
     public static boolean isValid(int row, int col) {
@@ -89,9 +82,20 @@ public class Square extends Element {
         return occupied;
     }
 
+    @Override
     public String toString() {
-        return "row=" + String.valueOf(row) + " col=" + String.valueOf(col)
-                + "; x=" + String.valueOf(getX()) + " y=" + String.valueOf(getY());
+        return "Square{" +
+                "row=" + row +
+                ", col=" + col +
+                ", rows=" + rows +
+                ", cols=" + cols +
+                ", deskSide=" + deskSide +
+                ", occupied=" + occupied +
+                ", occupant=" + occupant +
+                ", strokeLineWidth=" + strokeLineWidth +
+                ", alph=" + Arrays.toString(alph) +
+                ", offsetX=" + offsetX +
+                '}';
     }
 
     public String toSend() {
@@ -171,21 +175,24 @@ public class Square extends Element {
     }
 
     public void updateShape() {
-        double x = ((double) col) * side / ((double) rows) + offsetX;
-        double y = ((double) row) * side / ((double) cols);
-        setX(x + "em");
-        setY(y + "em");
+        double x = ((double) col) * deskSide / ((double) rows) + offsetX;
+        double y = ((double) row) * deskSide / ((double) cols);
+        setX(x);
+        setY(y);
+        double squareSize = deskSide / rows;
+        setWidth(squareSize);
+        setHeight(squareSize);
     }
 
-//  public boolean contains(double x, double y) {
-//    return (Math.abs(x - getX()) < getWidth()) && (Math.abs(y - getY()) < getHeight());
-//  }
+    public boolean contains(double x, double y) {
+        return (Math.abs(x - getX()) < getWidth()) && (Math.abs(y - getY()) < getHeight());
+    }
 
-//  public double getCenterX() {
-//    return getX() + getWidth() / 2;
-//  }
+    public double getCenterX() {
+        return getX() + getWidth() / 2;
+    }
 
-//  public double getCenterY() {
-//    return getY() + getHeight() / 2;
-//  }
+    public double getCenterY() {
+        return getY() + getHeight() / 2;
+    }
 }

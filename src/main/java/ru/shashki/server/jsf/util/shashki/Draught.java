@@ -1,9 +1,7 @@
 package ru.shashki.server.jsf.util.shashki;
 
 
-import org.primefaces.model.diagram.Element;
-import org.primefaces.model.diagram.endpoint.BlankEndPoint;
-import org.primefaces.model.diagram.endpoint.EndPointAnchor;
+import io.snapfaces.faces.model.element.Circle;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +9,7 @@ import org.primefaces.model.diagram.endpoint.EndPointAnchor;
  * Date: 07.12.13
  * Time: 21:08
  */
-public class Draught extends Element {
+public class Draught extends Circle {
     private final double deskSide;
     private static Draught selectedDraught;
 //  private Board board;
@@ -33,8 +31,12 @@ public class Draught extends Element {
 
     private Draught currentDraught;
     private double offsetX;
+    private Square location;
+    private String draughtWhiteColor;
+    private String draughtBlackColor;
+    private Board parent;
 
-    public Draught(double deskSide, int rows, int cols, int row, int col, boolean white, double offsetX) {
+    public Draught(Board parent, double deskSide, int rows, int cols, int row, int col, boolean white, double offsetX) {
         this.deskSide = deskSide;
         this.row = row;
         this.col = col;
@@ -42,9 +44,11 @@ public class Draught extends Element {
         this.cols = cols;
         this.white = white;
         this.offsetX = offsetX;
+        this.parent = parent;
+        this.draughtWhiteColor = parent.getDraughtWhiteColor();
+        this.draughtBlackColor = parent.getDraughtBlackColor();
 
-        setStyleClass("draught " + (white ? "draught-white" : "draught-black"));
-
+//        setDraggable(true);
 //    queenStar.setFillColor(white ? ColorName.BLUE : ColorName.RED);
 
 //    Circle[] circles = {mainCircle, innerCircle1, innerCircle2, innerCircle3};
@@ -77,7 +81,6 @@ public class Draught extends Element {
 //      }
 //    });
 
-        addEndPoint(new BlankEndPoint(EndPointAnchor.AUTO_DEFAULT));
     }
 
 //  private void onNodeTouch(Draught draught) {
@@ -115,11 +118,18 @@ public class Draught extends Element {
     }
 
     public void updateShape() {
+        if (white) {
+            setFill(draughtWhiteColor);
+        } else {
+            setFill(draughtBlackColor);
+        }
+
         double x = col * deskSide / rows;
         double y = row * deskSide / cols;
-        double squareSize = deskSide / rows;
-        setX(x + offsetX + "em");
-        setY(y + "em");
+        double squareSize = deskSide / rows / 2 - 4;
+        setCx(x + offsetX + squareSize + 4);
+        setCy(y + squareSize + 4);
+        setR(squareSize);
     }
 
     public int getRow() {
@@ -130,10 +140,10 @@ public class Draught extends Element {
         return col;
     }
 
-//  public void setQueen(boolean queen) {
-//    this.queen = queen;
-//    updateShape();
-//  }
+    public void setQueen(boolean queen) {
+        this.queen = queen;
+        updateShape();
+    }
 
     public boolean isQueen() {
         return queen;
@@ -163,5 +173,21 @@ public class Draught extends Element {
 
     public static Draught getSelectedDraught() {
         return selectedDraught;
+    }
+
+    public void setLocation(Square location) {
+        this.location = location;
+    }
+
+    public Square getLocation() {
+        return location;
+    }
+
+    public void setParent(Board parent) {
+        this.parent = parent;
+    }
+
+    public Board getParent() {
+        return parent;
     }
 }

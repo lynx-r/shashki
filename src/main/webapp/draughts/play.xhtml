@@ -1,15 +1,31 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+      xmlns:snap="http://snapfaces.io/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html">
 
 <body>
 <ui:composition template="/templates/template.xhtml">
 
     <ui:define name="title">PrimeFaces Sample</ui:define>
 
+    <ui:define name="javascript">
+        <h:outputScript>
+            var draughtRadius = #{playView.draughtRadius};
+            var draughtWhiteColor = "#{playView.draughtWhiteColor}";
+            var draughtBlackColor = "#{playView.draughtBlackColor}";
+            var draughtMineColor = "#{playView.draughtMineColor}";
+            var deskSquareColor = "#{playView.deskSquareColor}";
+        </h:outputScript>
+    </ui:define>
+
     <ui:define name="body">
-        <p:diagram value="#{playView.model}" style="height:600px" styleClass="ui-widget-content"/>
+        <h:form prependId="false">
+            <snap:canvas id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
+                <p:ajax event="click" listener="#{playView.onClick}" update="canvas"/>
+            </snap:canvas>
+        </h:form>
     </ui:define>
 </ui:composition>
 </body>

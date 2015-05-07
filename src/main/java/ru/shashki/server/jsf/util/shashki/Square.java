@@ -91,7 +91,6 @@ public class Square extends Rect {
                 ", cols=" + cols +
                 ", deskSide=" + deskSide +
                 ", occupied=" + occupied +
-                ", occupant=" + occupant +
                 ", strokeLineWidth=" + strokeLineWidth +
                 ", alph=" + Arrays.toString(alph) +
                 ", offsetX=" + offsetX +

@@ -190,4 +190,22 @@ public class Draught extends Circle {
     public Board getParent() {
         return parent;
     }
+
+    @Override
+    public String toString() {
+        return "Draught{" +
+                "deskSide=" + deskSide +
+                ", row=" + row +
+                ", col=" + col +
+                ", white=" + white +
+                ", rows=" + rows +
+                ", cols=" + cols +
+                ", queen=" + queen +
+                ", currentDraught=" + currentDraught +
+                ", offsetX=" + offsetX +
+                ", location=" + location +
+                ", draughtWhiteColor='" + draughtWhiteColor + '\'' +
+                ", draughtBlackColor='" + draughtBlackColor + '\'' +
+                '}';
+    }
 }

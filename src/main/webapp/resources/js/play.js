@@ -1,57 +1,77 @@
-$(document).ready(function () {
-    var selectedDraught;
-    var moveToSquare;
-    var s = Snap("#canvas");
+var DRAUGHT_MOVE_DURATION = 400;
+var MOVING_DRAUGHT = false;
 
-    var draughts = s.selectAll("circle[fill~='" + draughtMineColor + "']");
+$(document).ready(function () {
+    updatePlay();
+});
+
+updatePlay = function () {
+    snap = Snap(canvasId);
+
+    var draughts = snap.selectAll("circle[fill~='" + draughtMineColor + "']");
+    console.log(draughts);
     draughts.forEach(function (draught) {
+        draught.unhover();
         draught.hover(function () {
-            draught.animate({r: draughtRadius + 2}, 100, s.easeIn);
-        }, function () {
-            draught.animate({r: draughtRadius}, 100, s.easeIn);
+            if (!MOVING_DRAUGHT) {
+                draught.animate({fill: "yellow"}, 100, snap.easeIn);
+                setTimeout(function () {
+                    draught.animate({fill: draughtMineColor}, 100, snap.easeIn);
+                }, 100);
+            }
+        }, draught);
+    });
+
+    var deskSquareColors = [deskSquareColor, deskSquareHighlight, deskSquareHighlightToBeat];
+
+    deskSquareColors.forEach(function (color) {
+        var squares = snap.selectAll("rect[fill~='" + color + "']");
+        squares.forEach(function (square) {
+            squareClickHandler(square);
         });
     });
 
-    var whiteDraughts = s.selectAll("circle[fill~='" + draughtMineColor + "']");
-
-    function resetDraughtColor() {
-        return draughtMineColor === draughtWhiteColor ? draughtWhiteColor : draughtBlackColor;
+    function squareClickHandler(square) {
+        square.click(function () {
+            var selectedDraught = snap.select("circle[fill~='" + draughtClickedColor + "'");
+            if (selectedDraught !== undefined) {
+                moveDraught(selectedDraught, square)
+            }
+        });
     }
 
-    //whiteDraughts.forEach(function (draught) {
-    //    draught.click(function () {
-    //        if (selectedDraught !== undefined) {
-    //            selectedDraught.attr({fill: resetDraughtColor()});
-    //        }
-    //
-    //        var selectColor = draughtMineColor === draughtWhiteColor ? "red" : "green";
-    //        draught.attr({fill: selectColor});
-    //        selectedDraught = draught;
-    //    });
-    //});
-    //
-    //var squares = s.selectAll("rect[fill~='" + deskSquareColor + "']");
-    //squares.forEach(function (square) {
-    //    square.click(function () {
-    //        if (selectedDraught !== undefined) {
-    //            moveToSquare = square;
-    //        }
-    //    });
-    //});
-
-    PrimeFaces.widget.moveDraught = function () {
+    function moveDraught(selectedDraught, moveToSquare) {
         if (selectedDraught !== undefined && moveToSquare !== undefined) {
             var attr = moveToSquare.attr();
             var newX = parseFloat(attr.x) + parseFloat(attr.width) / 2;
             var newY = parseFloat(attr.y) + parseFloat(attr.height) / 2;
             selectedDraught.animate({
-                cx: newX,
-                cy: newY
-            }, 100, s.easeIn);
+                    cx: newX,
+                    cy: newY
+                },
+                DRAUGHT_MOVE_DURATION,
+                snap.easeIn
+            );
             selectedDraught.attr({fill: resetDraughtColor()});
-            selectedDraught = moveToSquare = undefined;
+            MOVING_DRAUGHT = true;
+        }
+
+        function resetDraughtColor() {
+            return draughtMineColor === draughtWhiteColor ? draughtWhiteColor : draughtBlackColor;
         }
     }
-});
+};
 
-
+doPlay = function () {
+    if (!MOVING_DRAUGHT) {
+        updateCanvasCommand();
+    }
+    updatePlayCommand();
+    if (MOVING_DRAUGHT) {
+        setTimeout(function () {
+            MOVING_DRAUGHT = false;
+            updateCanvasCommand();
+            updatePlayCommand()
+        }, DRAUGHT_MOVE_DURATION);
+    }
+};

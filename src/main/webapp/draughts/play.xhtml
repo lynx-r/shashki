@@ -12,19 +12,29 @@
 
     <ui:define name="javascript">
         <h:outputScript>
+            var canvasId = "#canvas";
+
             var draughtRadius = #{playView.draughtRadius};
             var draughtWhiteColor = "#{playView.draughtWhiteColor}";
             var draughtBlackColor = "#{playView.draughtBlackColor}";
             var draughtMineColor = "#{playView.draughtMineColor}";
             var deskSquareColor = "#{playView.deskSquareColor}";
+
+            var draughtClickedColor = "#{playView.draughtClickedColor}";
+            var deskSquareHighlight = "#{playView.deskSquareHighlight}";
+            var deskSquareHighlightToBeat = "#{playView.deskSquareHighlightToBeat}";
         </h:outputScript>
+        <h:outputScript library="js" name="play.js"/>
     </ui:define>
 
     <ui:define name="body">
         <h:form prependId="false">
-            <snap:canvas id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
-                <p:ajax event="click" listener="#{playView.onClick}" update="canvas"/>
-            </snap:canvas>
+            <p:remoteCommand name="updateCanvasCommand" update="canvas"/>
+            <p:remoteCommand name="updatePlayCommand" oncomplete="updatePlay();"/>
+            <snap:svg id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
+                <p:ajax event="click" listener="#{playView.onClick}"
+                        oncomplete="doPlay();"/>
+            </snap:svg>
         </h:form>
     </ui:define>
 </ui:composition>

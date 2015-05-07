@@ -35,25 +35,26 @@ public class PlayView extends BaseView {
     private Draught prevClicked;
     private Board board;
     private double draughtRadius;
-    private String draughtWhiteColor;
-    private String draughtBlackColor;
+    private String draughtWhiteColor = "#f0ffff";
+    private String draughtBlackColor = "#a9a9a9";
     private String draughtMineColor;
     private String deskSquareColor;
-    private String fillDeskColor;
+    private String fillDeskColor = "#8b4513";
+    private String draughtClickedColor = "#ff0000";
+    private String deskSquareHighlight = "#ff0000";
+    private String deskSquareHighlightToBeat = "#aaffaa";
 
     @PostConstruct
     public void init() {
         white = Boolean.valueOf(getContext().getExternalContext().getRequestParameterMap().get("white"));
         model = new DefaultSnapModel();
 
-        fillDeskColor = "#8b4513";
         BoardBackgroundLayer backgroundLayer = new BoardBackgroundLayer(deskSide, deskSide - OFFSET_X, OFFSET_X,
                 rows, cols, fillDeskColor);
         model.addGroup(backgroundLayer);
 
-        draughtWhiteColor = "#f0ffff";
-        draughtBlackColor = "#a9a9a9";
-        board = new Board(backgroundLayer, rows, cols, white, draughtWhiteColor, draughtBlackColor);
+        board = new Board(backgroundLayer, rows, cols, white, draughtWhiteColor, draughtBlackColor, deskSquareHighlight,
+                deskSquareHighlightToBeat);
         model.addGroup(board);
 
         draughtRadius = board.getMineDraughts().get(0).getR();
@@ -72,7 +73,7 @@ public class PlayView extends BaseView {
                 // TODO брать цвета от родителей
                 prevClicked.updateShape();
             }
-            clicked.setFill("red");
+            clicked.setFill(draughtClickedColor);
             board.resetDeskDrawing();
             board.highlightAllowedMoves(clicked);
             prevClicked = clicked;
@@ -102,5 +103,17 @@ public class PlayView extends BaseView {
 
     public String getDeskSquareColor() {
         return deskSquareColor;
+    }
+
+    public String getDraughtClickedColor() {
+        return draughtClickedColor;
+    }
+
+    public String getDeskSquareHighlight() {
+        return deskSquareHighlight;
+    }
+
+    public String getDeskSquareHighlightToBeat() {
+        return deskSquareHighlightToBeat;
     }
 }

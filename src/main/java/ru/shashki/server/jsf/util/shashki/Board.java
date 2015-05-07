@@ -45,7 +45,11 @@ public class Board extends Group {
     private String lastStartMove;
     private String lastCaptured;
 
-    public Board(BoardBackgroundLayer backgroundLayer, int rows, int cols, boolean white, String draughtWhiteColor, String draughtBlackColor) {
+    private String deskSquareHighlightToBeat;
+    private String deskSquareHighlight;
+
+    public Board(BoardBackgroundLayer backgroundLayer, int rows, int cols, boolean white, String draughtWhiteColor,
+                 String draughtBlackColor, String deskSquareHighlight, String deskSquareHighlightToBeat) {
         this.backgroundLayer = backgroundLayer;
         this.white = white;
         turn = white;
@@ -70,6 +74,9 @@ public class Board extends Group {
         alphMap.put("f", 5);
         alphMap.put("g", 6);
         alphMap.put("h", 7);
+
+        this.deskSquareHighlight = deskSquareHighlight;
+        this.deskSquareHighlightToBeat = deskSquareHighlightToBeat;
 
 ////    addNodeMouseClickHandler(new NodeMouseClickHandler() {
 ////      @Override
@@ -235,7 +242,7 @@ public class Board extends Group {
     }
 
     private void fadeInSquare(Square square) {
-        square.setFill("rgba(255, 0, 0, .5)");
+        square.setFill(deskSquareHighlight);
     }
 
     private void fadeOutSquare(Square square) {
@@ -247,7 +254,7 @@ public class Board extends Group {
     }
 
     private void highlightSquareToBeat(Square square) {
-        square.setFill("#aaffaa");
+        square.setFill(deskSquareHighlightToBeat);
     }
 
     /**
@@ -362,6 +369,7 @@ public class Board extends Group {
 
     public void resetDeskDrawing() {
         backgroundLayer.resetDeskDrawing();
+        highlightedSquares.clear();
     }
 
 //  public Square getSquare(double row, double col) {
@@ -450,7 +458,7 @@ public class Board extends Group {
 
         if (!capturedSquares.isEmpty()) {
             //A jump has been performed, so get the Square that lies between from and to
-            Square takenSquare = null;
+            Square takenSquare;
             try {
                 takenSquare = capturedSquares.stream().filter(
                         square -> to.isOnLine(square) && square.isBetween(from, to)).findFirst().get();
@@ -511,6 +519,7 @@ public class Board extends Group {
             return;
         }
         takenSquare.setOccupant(null);
+        removeShape(takenDraught);
 //    AnimationProperties props = new AnimationProperties();
 //    props.push(AnimationProperty.Properties.ALPHA(0));
 //    takenDraught.animate(AnimationTweener.LINEAR, props,

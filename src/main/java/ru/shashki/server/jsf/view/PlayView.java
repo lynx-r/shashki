@@ -17,8 +17,8 @@ import javax.faces.bean.ViewScoped;
  * Date: 25.04.15
  * Time: 7:05
  */
-@ViewScoped
 @ManagedBean
+@ViewScoped
 public class PlayView extends BaseView {
 
     private DefaultSnapModel model;
@@ -69,6 +69,9 @@ public class PlayView extends BaseView {
     public void onClick(ClickEvent event) {
         if (event.getTarget() instanceof Draught) {
             Draught clicked = (Draught) event.getTarget();
+            if (!draughtMineColor.equals(clicked.getFill())) {
+                return;
+            }
             if (prevClicked != null) {
                 // TODO брать цвета от родителей
                 prevClicked.updateShape();

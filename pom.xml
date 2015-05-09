@@ -1,36 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>ru.shashki</groupId>
-  <artifactId>shashki</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencyManagement>
-    <dependencies>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ru.shashki</groupId>
+    <artifactId>shashki</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <version.primefaces>5.2</version.primefaces>
+        <version.atmosphere>2.3.1</version.atmosphere>
+        <version.jboss.logging>3.2.1.Final</version.jboss.logging>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <!--Java EE-->
+        <dependency>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-7.0</artifactId>
+            <version>1.0.2.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--PrimeFaces-->
+        <dependency>
+            <groupId>org.primefaces</groupId>
+            <artifactId>primefaces</artifactId>
+            <version>${version.primefaces}</version>
+        </dependency>
+
+        <!--Atmosphere-->
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime</artifactId>
+            <version>${version.atmosphere}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--Jboss Logging-->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>${version.jboss.logging}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--SnapFaces-->
+        <dependency>
+            <groupId>io.snapfaces</groupId>
+            <artifactId>snapfaces</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>7.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.primefaces</groupId>
-      <artifactId>primefaces</artifactId>
-      <version>5.2</version>
-    </dependency>
-    <dependency>
-      <groupId>io.snapfaces</groupId>
-      <artifactId>snapfaces</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
 </project>

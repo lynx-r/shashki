@@ -28,14 +28,24 @@
     </ui:define>
 
     <ui:define name="body">
-        <h:form prependId="false">
-            <p:remoteCommand name="updateCanvasCommand" update="canvas"/>
-            <p:remoteCommand name="updatePlayCommand" oncomplete="updatePlay();"/>
-            <snap:svg id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
-                <p:ajax event="click" listener="#{playView.onClick}"
-                        oncomplete="doPlay();"/>
-            </snap:svg>
-        </h:form>
+        <p:layout>
+            <p:layoutUnit position="west" resizable="false" size="600" minSize="300" maxSize="800">
+                <h:form prependId="false">
+                    <p:remoteCommand name="updateCanvasCommand" update="canvas"/>
+                    <p:remoteCommand name="updatePlayCommand" oncomplete="updatePlay();"/>
+                    <snap:svg id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
+                        <p:ajax event="click" listener="#{playView.onClick}"
+                                oncomplete="doPlay();"/>
+                    </snap:svg>
+                </h:form>
+            </p:layoutUnit>
+
+            <p:layoutUnit position="center">
+                <ui:insert name="chat"/>
+            </p:layoutUnit>
+            <p:layoutUnit position="east">
+            </p:layoutUnit>
+        </p:layout>
     </ui:define>
 </ui:composition>
 </body>

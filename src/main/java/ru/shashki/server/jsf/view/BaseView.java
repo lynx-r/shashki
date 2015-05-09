@@ -1,6 +1,7 @@
 package ru.shashki.server.jsf.view;
 
 import javax.faces.context.FacesContext;
+import java.io.Serializable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -8,7 +9,7 @@ import javax.faces.context.FacesContext;
  * Date: 03.05.15
  * Time: 5:24
  */
-public class BaseView {
+public class BaseView implements Serializable {
 
     protected FacesContext getContext() {
         return FacesContext.getCurrentInstance();

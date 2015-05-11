@@ -1,6 +1,5 @@
 package ru.shashki.server.jsf.view;
 
-import org.primefaces.context.RequestContext;
 import org.primefaces.push.EventBus;
 import org.primefaces.push.EventBusFactory;
 import ru.shashki.server.component.chat.ChatUsers;
@@ -9,21 +8,17 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
 
-/**
- * Created with IntelliJ IDEA.
- * User: alekspo
- * Date: 08.05.15
- * Time: 13:25
- */
 @ManagedBean
 @ViewScoped
 public class ChatView extends BaseView {
-    //private final PushContext pushContext = PushContextFactory.getDefault().getPushContext();
 
     private final EventBus eventBus = EventBusFactory.getDefault().eventBus();
 
+    /*
+     * Injecting managed beans in each other
+     * http://balusc.blogspot.com/2011/09/communication-in-jsf-20.html#InjectingManagedBeansInEachOther
+     */
     @ManagedProperty("#{chatUsers}")
     private ChatUsers users;
 
@@ -37,12 +32,15 @@ public class ChatView extends BaseView {
 
     private String privateUser;
 
-    private final static String CHANNEL = "/{room}/";
+    private final static String CHANNEL = "/chat/";
 
-    public ChatUsers getUsers() {
-        return users;
+    public ChatView() {
     }
 
+    /*
+     * Injecting managed beans in each other
+     * http://balusc.blogspot.com/2011/09/communication-in-jsf-20.html#InjectingManagedBeansInEachOther
+     */
     public void setUsers(ChatUsers users) {
         this.users = users;
     }
@@ -74,6 +72,7 @@ public class ChatView extends BaseView {
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -81,6 +80,7 @@ public class ChatView extends BaseView {
     public boolean isLoggedIn() {
         return loggedIn;
     }
+
     public void setLoggedIn(boolean loggedIn) {
         this.loggedIn = loggedIn;
     }
@@ -98,24 +98,21 @@ public class ChatView extends BaseView {
     }
 
     public void login() {
-        RequestContext requestContext = RequestContext.getCurrentInstance();
-
-        if(users.contains(username)) {
+        if (users.contains(username)) {
             loggedIn = false;
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Username taken", "Try with another username."));
-            requestContext.update("growl");
-        }
-        else {
-            users.add(username);
-            requestContext.execute("PF('subscriber').connect('/" + username + "')");
+            getFacesContext().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Username taken", "Try with another username."));
+            getRequestContext().update("growl");
+        } else {
+            users.addUser(username);
+            getRequestContext().execute("PF('subscriber').connect('/" + username + "')");
             loggedIn = true;
         }
     }
 
     public void disconnect() {
         //remove user and update ui
-        users.remove(username);
-        RequestContext.getCurrentInstance().update("form:users");
+        users.removeUser(username);
+        getRequestContext().update("form:users");
 
         //push leave information
         eventBus.publish(CHANNEL + "*", username + " left the channel.");

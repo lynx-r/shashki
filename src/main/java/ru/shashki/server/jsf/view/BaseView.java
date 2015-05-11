@@ -1,5 +1,7 @@
 package ru.shashki.server.jsf.view;
 
+import org.primefaces.context.RequestContext;
+
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 
@@ -11,7 +13,11 @@ import java.io.Serializable;
  */
 public class BaseView implements Serializable {
 
-    protected FacesContext getContext() {
+    protected FacesContext getFacesContext() {
         return FacesContext.getCurrentInstance();
+    }
+
+    protected RequestContext getRequestContext() {
+        return RequestContext.getCurrentInstance();
     }
 }

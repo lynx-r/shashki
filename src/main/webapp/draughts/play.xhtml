@@ -4,49 +4,48 @@
       xmlns:snap="http://snapfaces.io/ui"
       xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui"
       xmlns:h="http://java.sun.com/jsf/html">
+<h:body>
+    <ui:composition template="/templates/template.xhtml">
 
-<body>
-<ui:composition template="/templates/template.xhtml">
+        <ui:define name="title">PrimeFaces Sample</ui:define>
 
-    <ui:define name="title">PrimeFaces Sample</ui:define>
+        <ui:define name="javascript">
+            <h:outputScript>
+                var canvasId = "#canvas";
 
-    <ui:define name="javascript">
-        <h:outputScript>
-            var canvasId = "#canvas";
+                var draughtRadius = #{playView.draughtRadius};
+                var draughtWhiteColor = "#{playView.draughtWhiteColor}";
+                var draughtBlackColor = "#{playView.draughtBlackColor}";
+                var draughtMineColor = "#{playView.draughtMineColor}";
+                var deskSquareColor = "#{playView.deskSquareColor}";
 
-            var draughtRadius = #{playView.draughtRadius};
-            var draughtWhiteColor = "#{playView.draughtWhiteColor}";
-            var draughtBlackColor = "#{playView.draughtBlackColor}";
-            var draughtMineColor = "#{playView.draughtMineColor}";
-            var deskSquareColor = "#{playView.deskSquareColor}";
+                var draughtClickedColor = "#{playView.draughtClickedColor}";
+                var deskSquareHighlight = "#{playView.deskSquareHighlight}";
+                var deskSquareHighlightToBeat = "#{playView.deskSquareHighlightToBeat}";
+            </h:outputScript>
+            <h:outputScript library="js" name="play.js"/>
+        </ui:define>
 
-            var draughtClickedColor = "#{playView.draughtClickedColor}";
-            var deskSquareHighlight = "#{playView.deskSquareHighlight}";
-            var deskSquareHighlightToBeat = "#{playView.deskSquareHighlightToBeat}";
-        </h:outputScript>
-        <h:outputScript library="js" name="play.js"/>
-    </ui:define>
+        <ui:define name="body">
+            <p:layout>
+                <p:layoutUnit position="west" resizable="false" size="610" minSize="300" maxSize="800">
+                    <h:form prependId="false">
+                        <p:remoteCommand name="updateCanvasCommand" update="canvas"/>
+                        <p:remoteCommand name="updatePlayCommand" oncomplete="updatePlay();"/>
+                        <snap:svg id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
+                            <p:ajax event="click" listener="#{playView.onClick}"
+                                    oncomplete="doPlay();"/>
+                        </snap:svg>
+                    </h:form>
+                </p:layoutUnit>
 
-    <ui:define name="body">
-        <p:layout>
-            <p:layoutUnit position="west" resizable="false" size="600" minSize="300" maxSize="800">
-                <h:form prependId="false">
-                    <p:remoteCommand name="updateCanvasCommand" update="canvas"/>
-                    <p:remoteCommand name="updatePlayCommand" oncomplete="updatePlay();"/>
-                    <snap:svg id="canvas" value="#{playView.model}" style="height: 600px; width: 600px;">
-                        <p:ajax event="click" listener="#{playView.onClick}"
-                                oncomplete="doPlay();"/>
-                    </snap:svg>
-                </h:form>
-            </p:layoutUnit>
-
-            <p:layoutUnit position="center">
-                <ui:insert name="chat"/>
-            </p:layoutUnit>
-            <p:layoutUnit position="east">
-            </p:layoutUnit>
-        </p:layout>
-    </ui:define>
-</ui:composition>
-</body>
+                <p:layoutUnit position="center">
+                    <ui:include src="/includes/chat.xhtml" />
+                </p:layoutUnit>
+                <p:layoutUnit position="east">
+                </p:layoutUnit>
+            </p:layout>
+        </ui:define>
+    </ui:composition>
+</h:body>
 </html>

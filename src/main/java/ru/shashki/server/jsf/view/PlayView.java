@@ -46,7 +46,7 @@ public class PlayView extends BaseView {
 
     @PostConstruct
     public void init() {
-        white = Boolean.valueOf(getContext().getExternalContext().getRequestParameterMap().get("white"));
+        white = Boolean.valueOf(getFacesContext().getExternalContext().getRequestParameterMap().get("white"));
         model = new DefaultSnapModel();
 
         BoardBackgroundLayer backgroundLayer = new BoardBackgroundLayer(deskSide, deskSide - OFFSET_X, OFFSET_X,

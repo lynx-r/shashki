@@ -42,7 +42,7 @@ public class ChatResource {
     @OnClose
     public void onClose(RemoteEndpoint r, EventBus eventBus) {
         ChatUsers users= (ChatUsers) ctx.getAttribute("chatUsers");
-        users.remove(username);
+        users.removeUser(username);
 
         eventBus.publish(room + "/*", new Message(String.format("%s has left the room", username), true));
     }

@@ -33,6 +33,7 @@ public class VKOAuthServlet extends HttpServlet {
                 .apiKey(config.getVkClientId())
                 .apiSecret(config.getVkClientSecret())
                 .callback(config.getVkRedirectUri())
+                .scope("email")
                 .build();
         HttpSession session = req.getSession();
         session.setAttribute("oauth2Service", service);

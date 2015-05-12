@@ -1,10 +1,13 @@
 package ru.shashki.server.entity;
 
 import org.hibernate.validator.constraints.Email;
+import ru.shashki.server.util.converter.AuthProviderConverter;
+import ru.shashki.server.util.converter.LocalDateConverter;
 
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,13 +19,18 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "shashist")
-public class Shashist extends PersistableObject {
+@Converts(value = {
+        @Convert(attributeName = "authProvider", converter = AuthProviderConverter.class),
+        @Convert(attributeName = "registerDate", converter = LocalDateConverter.class),
+        @Convert(attributeName = "lastVisitedDate", converter = LocalDateConverter.class),
+})
+public class Shashist extends PersistableObjectImpl {
 
     @Column(name = "session_id")
     private String sessionId;
 
-    @Column(name = "vk_uid")
-    private String vkUid;
+    @Column(name = "user_id")
+    private String userId;
 
     @Email
     private String email;
@@ -37,32 +45,32 @@ public class Shashist extends PersistableObject {
     private String playerName;
 
     @Column(name = "auth_provider")
-    private String authProvider;
+    private AuthProvider authProvider;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "pk.friendOf", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Friend> friends;
+    private Set<Friend> friends = new HashSet<>();
 
     @Column(name = "fiends_of")
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "pk.friend", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Friend> friendOf;
+    private Set<Friend> friendOf = new HashSet<>();
 
     @OneToMany(mappedBy = "receiver")
-    private Set<GameMessage> receivedPlayerMessages;
+    private Set<GameMessage> receivedPlayerMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
-    private Set<GameMessage> sentPlayerMessages;
+    private Set<GameMessage> sentPlayerMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "receiver")
-    private Set<GameMessage> receivedGameMessages;
+    private Set<GameMessage> receivedGameMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
-    private Set<GameMessage> sentGameMessages;
+    private Set<GameMessage> sentGameMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "playerWhite")
-    private Set<Game> whiteRoleGames;
+    private Set<Game> whiteRoleGames = new HashSet<>();
 
     @OneToMany(mappedBy = "playerBlack")
-    private Set<Game> blackRoleGames;
+    private Set<Game> blackRoleGames = new HashSet<>();
 
     @Column(name = "logged_in")
     private boolean loggedIn;
@@ -70,12 +78,10 @@ public class Shashist extends PersistableObject {
     private boolean online;
     @Column(name = "register_date")
     private LocalDate registerDate;
-    @Column(name = "last_visited")
-    private LocalDate lastVisited;
+    @Column(name = "last_visited_date")
+    private LocalDate lastVisitedDate;
     @Column(name = "visit_counter")
     private int visitCounter;
-    @Column(name = "hash_id")
-    private String hashId;
 
     public Shashist() {
     }
@@ -101,12 +107,12 @@ public class Shashist extends PersistableObject {
         return Objects.hash(sessionId);
     }
 
-    public String getVkUid() {
-        return vkUid;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setVkUid(String vkUid) {
-        this.vkUid = vkUid;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {
@@ -141,11 +147,11 @@ public class Shashist extends PersistableObject {
         this.playerName = playerName;
     }
 
-    public String getAuthProvider() {
+    public AuthProvider getAuthProvider() {
         return authProvider;
     }
 
-    public void setAuthProvider(String authProvider) {
+    public void setAuthProvider(AuthProvider authProvider) {
         this.authProvider = authProvider;
     }
 
@@ -229,12 +235,12 @@ public class Shashist extends PersistableObject {
         this.registerDate = registerDate;
     }
 
-    public LocalDate getLastVisited() {
-        return lastVisited;
+    public LocalDate getLastVisitedDate() {
+        return lastVisitedDate;
     }
 
-    public void setLastVisited(LocalDate lastVisited) {
-        this.lastVisited = lastVisited;
+    public void setLastVisitedDate(LocalDate lastVisited) {
+        this.lastVisitedDate = lastVisited;
     }
 
     public int getVisitCounter() {
@@ -280,8 +286,8 @@ public class Shashist extends PersistableObject {
         String uid = "";
         if (getEmail() != null) {
             uid = getEmail();
-        } else if (getVkUid() != null) {
-            uid = getVkUid();
+        } else if (getUserId() != null) {
+            uid = getUserId();
         }
         return BigInteger.valueOf(uid.hashCode()).toString(16);
     }

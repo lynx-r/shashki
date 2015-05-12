@@ -1,11 +1,15 @@
 package ru.shashki.server.servlet;
 
 import org.jboss.logging.Logger;
+import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
 import org.scribe.model.*;
 import org.scribe.oauth.OAuthService;
 import ru.shashki.server.config.Config;
+import ru.shashki.server.dao.ShashistDao;
+import ru.shashki.server.entity.AuthProvider;
+import ru.shashki.server.entity.Shashist;
 
 import javax.inject.Inject;
 import javax.servlet.AsyncContext;
@@ -16,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,9 +33,10 @@ public class VKOAuthCallback extends HttpServlet {
 
     @Inject
     private Config config;
-
     @Inject
     private Logger logger;
+    @Inject
+    private ShashistDao shashistDao;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -72,19 +78,38 @@ public class VKOAuthCallback extends HttpServlet {
             try {
                 JSONObject json = new JSONObject(accessToken.getRawResponse());
                 //Now do something with it - get the user's G+ profile
+                Integer userId = json.getInt("user_id");
+                String email = json.getString("email");
+                Shashist shashist = shashistDao.findByUserId(userId.toString());
+
+                if (shashist != null) {
+                    shashist.setVisitCounter(shashist.getVisitCounter() + 1);
+                    shashist.setLastVisitedDate(LocalDate.now());
+                    shashist.setSessionId(session.getId());
+                    shashistDao.edit(shashist);
+
+                    asyncContext.complete();
+                    return;
+                }
+
                 OAuthRequest oReq = new OAuthRequest(Verb.GET,
-                        String.format(config.getVkProtectedUri(), json.get("user_id")));
-//            service.signRequest(accessToken, oReq);
+                        String.format(config.getVkProtectedUri(), userId));
                 Response oResp = oReq.send();
 
-                //Read the result
-//            JsonReader reader = Json.createReader(new ByteArrayInputStream(
-//                    oResp.getBody().getBytes()));
-                JSONObject profile = new JSONObject(oResp.getBody());
-//            JsonObject profile = reader.readObject();
-//            Save the user details somewhere or associate it with
-//            session.setAttribute("name", profile.getString("name"));
-//            session.setAttribute("email", profile.getString("email"));
+                JSONObject response = new JSONObject(oResp.getBody());
+                JSONArray array = response.getJSONArray("response");
+                JSONObject profile = array.getJSONObject(0);
+                shashist = new Shashist();
+                shashist.setAuthProvider(AuthProvider.VK);
+                shashist.setUserId(userId.toString());
+                shashist.setEmail(email);
+                shashist.setFirstName(profile.getString("first_name"));
+                shashist.setLastName(profile.getString("last_name"));
+                shashist.setPlayerName(shashist.getPublicName());
+                shashist.setLastVisitedDate(LocalDate.now());
+                shashist.setVisitCounter(1);
+                shashistDao.create(shashist);
+
                 asyncContext.complete();
             } catch (JSONException e) {
                 logger.error(e.getMessage(), e);

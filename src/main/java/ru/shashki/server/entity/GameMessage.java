@@ -1,5 +1,7 @@
 package ru.shashki.server.entity;
 
+import ru.shashki.server.util.converter.MessageTypeConverter;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -11,7 +13,10 @@ import java.time.LocalDate;
  */
 @Entity
 @Table(name = "game_message")
-public class GameMessage extends PersistableObject implements Message {
+@Converts(value = {
+        @Convert(attributeName = "messageType", converter = MessageTypeConverter.class)
+})
+public class GameMessage extends PersistableObjectImpl implements Message {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
@@ -23,7 +28,6 @@ public class GameMessage extends PersistableObject implements Message {
 
     private String message;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "message_type")
     private MessageType messageType;
 

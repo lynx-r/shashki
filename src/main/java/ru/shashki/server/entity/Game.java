@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "game")
-public class Game extends PersistableObject {
+public class Game extends PersistableObjectImpl {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "player_white_id")

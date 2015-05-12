@@ -9,49 +9,29 @@ import java.time.LocalDate;
  * Date: 01.10.14
  * Time: 22:51
  */
- interface Message {
+public interface Message {
 
-     Shashist getSender();
+    Shashist getSender();
 
-     void setSender(Shashist sender);
+    void setSender(Shashist sender);
 
-     Shashist getReceiver();
+    Shashist getReceiver();
 
-     void setReceiver(Shashist receiver);
+    void setReceiver(Shashist receiver);
 
-     MessageType getMessageType();
+    MessageType getMessageType();
 
-     void setMessageType(MessageType messageType);
+    void setMessageType(MessageType messageType);
 
-     String getMessage();
+    String getMessage();
 
-     void setMessage(String message);
+    void setMessage(String message);
 
-     String getData();
+    String getData();
 
-     void setData(String data);
+    void setData(String data);
 
-     LocalDate getSentDate();
+    LocalDate getSentDate();
 
-     void setSentDate(LocalDate sentDate);
-
-     enum MessageType implements Serializable {
-
-        CHAT_MESSAGE,
-        CHAT_PRIVATE_MESSAGE,
-        USER_LIST_UPDATE,
-        PLAY_INVITE,
-        PLAY_REJECT_INVITE,
-        PLAY_START,
-        PLAY_MOVE,
-        PLAY_CANCEL_MOVE,
-        PLAY_CANCEL_MOVE_RESPONSE,
-        PLAY_LEFT,
-        PLAY_PROPOSE_DRAW,
-        PLAY_ACCEPT_DRAW,
-        PLAY_END,
-        PLAY_SURRENDER,
-        PLAYER_REGISTER
-
-    }
+    void setSentDate(LocalDate sentDate);
 }

@@ -1,33 +1,20 @@
 package ru.shashki.server.entity;
 
-
-import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Created with IntelliJ IDEA.
  * User: alekspo
- * Date: 15.11.14
- * Time: 16:03
+ * Date: 12.12.14
+ * Time: 10:20
  */
-@MappedSuperclass
-public class PersistableObject {
+public interface PersistableObject extends Serializable {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    Long getId();
 
-  @Version
-  private Integer version;
+    void setId(Long id);
 
-  public Long getId() {
-    return id;
-  }
+    Integer getVersion();
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public Integer getVersion() {
-    return version;
-  }
+    void setVersion(Integer version);
 }

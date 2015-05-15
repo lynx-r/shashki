@@ -9,4 +9,12 @@
             <var>msg</var>
         </resource-bundle>
     </application>
+
+    <navigation-rule>
+        <from-view-id>/vkOAuthCallback</from-view-id>
+        <navigation-case>
+            <from-outcome>authPlay</from-outcome>
+            <to-view-id>/draughts/play.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 </faces-config>

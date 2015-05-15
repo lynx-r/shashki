@@ -34,7 +34,7 @@
 
             <p:fieldset id="container" legend="PrimeChat" toggleable="true">
 
-                <h:panelGroup rendered="#{chatView.loggedIn}">
+                <h:panelGroup>
                     <h:panelGrid columns="2" columnClasses="publicColumn,usersColumn" style="width:100%">
                         <p:outputPanel id="public" layout="block"
                                        styleClass="ui-corner-all ui-widget-content chatlogs"/>
@@ -48,7 +48,10 @@
                                              update=":form:privateChatContainer">
                                 <f:setPropertyActionListener value="#{user}" target="#{chatView.privateUser}"/>
                             </p:commandButton>
-                            #{user}
+                            <h:outputText value="#{user.playerName}"/>
+                            <p:graphicImage value="#{chatView.shashistPhoto}">
+                                <f:param name="shashistId" value="#{user.id}"/>
+                            </p:graphicImage>
                         </p:dataList>
                     </h:panelGrid>
 
@@ -59,18 +62,7 @@
                     <p:commandButton value="Send" actionListener="#{chatView.sendGlobal}"
                                      oncomplete="$('.messageInput').val('').focus()"/>
                     <p:spacer width="5"/>
-                    <p:commandButton value="Disconnect" actionListener="#{chatView.disconnect}" global="false"
-                                     update="container"/>
                 </h:panelGroup>
-
-                <h:panelGroup rendered="#{not chatView.loggedIn}">
-                    Username: <p:inputText value="#{chatView.username}"/>
-
-                    <p:spacer width="5"/>
-                    <p:commandButton value="Login" actionListener="#{chatView.login}" update="container"
-                                     icon="ui-icon-person"/>
-                </h:panelGroup>
-
             </p:fieldset>
 
             <p:dialog widgetVar="pChat" header="Private Chat" modal="true" showEffect="fade" hideEffect="fade">

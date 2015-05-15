@@ -1,13 +1,18 @@
 package ru.shashki.server.jsf.view;
 
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.push.EventBus;
 import org.primefaces.push.EventBusFactory;
 import ru.shashki.server.component.chat.ChatUsers;
+import ru.shashki.server.service.ShashistService;
 
-import javax.faces.application.FacesMessage;
+import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 @ManagedBean
 @ViewScoped
@@ -28,13 +33,19 @@ public class ChatView extends BaseView {
 
     private String username;
 
-    private boolean loggedIn;
-
     private String privateUser;
 
     private final static String CHANNEL = "/chat/";
 
+    @Inject
+    private ShashistService shashistService;
+
     public ChatView() {
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap());
     }
 
     /*
@@ -77,14 +88,6 @@ public class ChatView extends BaseView {
         this.username = username;
     }
 
-    public boolean isLoggedIn() {
-        return loggedIn;
-    }
-
-    public void setLoggedIn(boolean loggedIn) {
-        this.loggedIn = loggedIn;
-    }
-
     public void sendGlobal() {
         eventBus.publish(CHANNEL + "*", username + ": " + globalMessage);
 
@@ -97,28 +100,12 @@ public class ChatView extends BaseView {
         privateMessage = null;
     }
 
-    public void login() {
-        if (users.contains(username)) {
-            loggedIn = false;
-            getFacesContext().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Username taken", "Try with another username."));
-            getRequestContext().update("growl");
-        } else {
-            users.addUser(username);
-            getRequestContext().execute("PF('subscriber').connect('/" + username + "')");
-            loggedIn = true;
-        }
-    }
+    public StreamedContent getShashistPhoto() {
+        System.out.println(FacesContext.getCurrentInstance().getCurrentPhaseId());
+        FacesContext context = FacesContext.getCurrentInstance();
+        String id = context.getExternalContext().getRequestParameterMap().get("shashistId");
+        System.out.println(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap());
 
-    public void disconnect() {
-        //remove user and update ui
-        users.removeUser(username);
-        getRequestContext().update("form:users");
-
-        //push leave information
-        eventBus.publish(CHANNEL + "*", username + " left the channel.");
-
-        //reset state
-        loggedIn = false;
-        username = null;
+        return new DefaultStreamedContent();
     }
 }

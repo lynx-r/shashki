@@ -3,6 +3,7 @@ package ru.shashki.server.entity;
 import org.hibernate.validator.constraints.Email;
 import ru.shashki.server.util.converter.AuthProviderConverter;
 import ru.shashki.server.util.converter.LocalDateConverter;
+import ru.shashki.server.util.converter.ShashistStatusConverter;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -23,6 +24,7 @@ import java.util.Set;
         @Convert(attributeName = "authProvider", converter = AuthProviderConverter.class),
         @Convert(attributeName = "registerDate", converter = LocalDateConverter.class),
         @Convert(attributeName = "lastVisitedDate", converter = LocalDateConverter.class),
+        @Convert(attributeName = "status", converter = ShashistStatusConverter.class),
 })
 public class Shashist extends PersistableObjectImpl {
 
@@ -34,6 +36,9 @@ public class Shashist extends PersistableObjectImpl {
 
     @Email
     private String email;
+
+    @Lob
+    private byte[] photo;
 
     @Column(name = "first_name")
     private String firstName;
@@ -72,10 +77,7 @@ public class Shashist extends PersistableObjectImpl {
     @OneToMany(mappedBy = "playerBlack")
     private Set<Game> blackRoleGames = new HashSet<>();
 
-    @Column(name = "logged_in")
-    private boolean loggedIn;
-    private boolean playing;
-    private boolean online;
+    private ShashistStatus status;
     @Column(name = "register_date")
     private LocalDate registerDate;
     @Column(name = "last_visited_date")
@@ -203,30 +205,6 @@ public class Shashist extends PersistableObjectImpl {
         this.sentGameMessages = sentGameMessages;
     }
 
-    public boolean isLoggedIn() {
-        return loggedIn;
-    }
-
-    public void setLoggedIn(boolean loggedIn) {
-        this.loggedIn = loggedIn;
-    }
-
-    public boolean isPlaying() {
-        return playing;
-    }
-
-    public void setPlaying(boolean playing) {
-        this.playing = playing;
-    }
-
-    public boolean isOnline() {
-        return online;
-    }
-
-    public void setOnline(boolean online) {
-        this.online = online;
-    }
-
     public LocalDate getRegisterDate() {
         return registerDate;
     }
@@ -265,6 +243,27 @@ public class Shashist extends PersistableObjectImpl {
 
     public void setBlackRoleGames(Set<Game> blackRoleGames) {
         this.blackRoleGames = blackRoleGames;
+    }
+
+    public ShashistStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ShashistStatus status) {
+        this.status = status;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }
+
+    // Some Logic
+    public boolean isOnline() {
+        return !ShashistStatus.OFFLINE.equals(status);
     }
 
     public String getPublicName() {

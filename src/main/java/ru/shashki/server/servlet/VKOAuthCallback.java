@@ -7,9 +7,11 @@ import org.primefaces.json.JSONObject;
 import org.scribe.model.*;
 import org.scribe.oauth.OAuthService;
 import ru.shashki.server.config.Config;
-import ru.shashki.server.dao.ShashistDao;
 import ru.shashki.server.entity.AuthProvider;
 import ru.shashki.server.entity.Shashist;
+import ru.shashki.server.entity.ShashistStatus;
+import ru.shashki.server.service.ShashistService;
+import ru.shashki.server.util.StreamUtil;
 
 import javax.inject.Inject;
 import javax.servlet.AsyncContext;
@@ -19,7 +21,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 
 /**
@@ -36,7 +41,7 @@ public class VKOAuthCallback extends HttpServlet {
     @Inject
     private Logger logger;
     @Inject
-    private ShashistDao shashistDao;
+    private ShashistService shashistService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -80,40 +85,60 @@ public class VKOAuthCallback extends HttpServlet {
                 //Now do something with it - get the user's G+ profile
                 Integer userId = json.getInt("user_id");
                 String email = json.getString("email");
-                Shashist shashist = shashistDao.findByUserId(userId.toString());
+                Shashist shashist = shashistService.findByUserId(userId.toString());
 
                 if (shashist != null) {
                     shashist.setVisitCounter(shashist.getVisitCounter() + 1);
                     shashist.setLastVisitedDate(LocalDate.now());
+                    shashist.setStatus(ShashistStatus.ONLINE);
                     shashist.setSessionId(session.getId());
-                    shashistDao.edit(shashist);
+                    shashistService.edit(shashist);
+                } else {
+                    OAuthRequest oReq = new OAuthRequest(Verb.GET,
+                            String.format(config.getVkProtectedUri(), userId));
+                    Response oResp = oReq.send();
 
-                    asyncContext.complete();
-                    return;
+                    JSONObject response = new JSONObject(oResp.getBody());
+                    JSONArray array = response.getJSONArray("response");
+                    JSONObject profile = array.getJSONObject(0);
+                    shashist = new Shashist();
+                    shashist.setStatus(ShashistStatus.ONLINE);
+                    shashist.setRegisterDate(LocalDate.now());
+                    shashist.setAuthProvider(AuthProvider.VK);
+                    shashist.setUserId(userId.toString());
+                    shashist.setEmail(email);
+                    shashist.setFirstName(profile.getString("first_name"));
+                    shashist.setLastName(profile.getString("last_name"));
+                    shashist.setPlayerName(shashist.getPublicName());
+                    shashist.setLastVisitedDate(LocalDate.now());
+                    shashist.setVisitCounter(1);
+                    shashist.setSessionId(session.getId());
+                    shashist.setPhoto(downloadPhoto(profile.getString("photo")));
+
+                    shashistService.create(shashist);
                 }
 
-                OAuthRequest oReq = new OAuthRequest(Verb.GET,
-                        String.format(config.getVkProtectedUri(), userId));
-                Response oResp = oReq.send();
-
-                JSONObject response = new JSONObject(oResp.getBody());
-                JSONArray array = response.getJSONArray("response");
-                JSONObject profile = array.getJSONObject(0);
-                shashist = new Shashist();
-                shashist.setAuthProvider(AuthProvider.VK);
-                shashist.setUserId(userId.toString());
-                shashist.setEmail(email);
-                shashist.setFirstName(profile.getString("first_name"));
-                shashist.setLastName(profile.getString("last_name"));
-                shashist.setPlayerName(shashist.getPublicName());
-                shashist.setLastVisitedDate(LocalDate.now());
-                shashist.setVisitCounter(1);
-                shashistDao.create(shashist);
-
                 asyncContext.complete();
-            } catch (JSONException e) {
+                resp.sendRedirect("/64/draughts/play.jsf");
+            } catch (JSONException | IOException e) {
                 logger.error(e.getMessage(), e);
             }
+        }
+
+        private byte[] downloadPhoto(String photo) throws IOException {
+            HttpURLConnection urlConnection = (HttpURLConnection) new URL(photo).openConnection();
+            int responseCode = urlConnection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                StreamUtil.copy(urlConnection.getInputStream(), outputStream);
+                urlConnection.disconnect();
+                return outputStream.toByteArray();
+            } else {
+                logger.error("No file downloaded");
+            }
+            urlConnection.disconnect();
+            return null;
         }
     }
 }

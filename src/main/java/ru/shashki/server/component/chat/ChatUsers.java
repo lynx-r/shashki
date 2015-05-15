@@ -15,45 +15,57 @@
  */
 package ru.shashki.server.component.chat;
 
+import ru.shashki.server.entity.Shashist;
+import ru.shashki.server.service.ShashistService;
+
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean
-@ApplicationScoped
+@ViewScoped
 public class ChatUsers implements Serializable {
 
-    private List<String> users;
+    private List<Shashist> users = new ArrayList<>();
+
+    @Inject
+    private ShashistService shashistService;
 
     public ChatUsers() {
-
     }
 
     @PostConstruct
     public void init() {
-        this.users = new ArrayList<String>();
+        users.addAll(shashistService.findAll());
     }
 
-    public List<String> getUsers() {
+    public List<Shashist> getUsers() {
         return users;
     }
 
-    public void setUsers(List<String> users) {
+    public void setUsers(List<Shashist> users) {
         this.users = users;
     }
 
-    public void addUser(String user) {
-        this.users.add(user);
+    public void addUser(Shashist user) {
+        users.add(user);
     }
 
-    public void removeUser(String user) {
-        this.users.remove(user);
+    public void removeUser(Shashist user) {
+        users.remove(user);
     }
 
-    public boolean contains(String user) {
-        return this.users.contains(user);
+    public void removeUser(String username) {
+        Shashist remove = users.stream().filter(shashist -> username.equals(shashist.getPlayerName()))
+                .findFirst().get();
+        users.remove(remove);
+    }
+
+    public boolean contains(Shashist user) {
+        return users.contains(user);
     }
 }

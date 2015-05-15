@@ -33,7 +33,7 @@ updatePlay = function () {
 
     function squareClickHandler(square) {
         square.click(function () {
-            var selectedDraught = snap.select("circle[fill~='" + draughtClickedColor + "'");
+            var selectedDraught = snap.select("circle[fill~='" + draughtClickedColor + "']");
             if (selectedDraught !== undefined) {
                 moveDraught(selectedDraught, square)
             }

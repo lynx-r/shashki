@@ -20,14 +20,14 @@ import ru.shashki.server.service.ShashistService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class ChatUsers implements Serializable {
 
     private List<Shashist> users = new ArrayList<>();

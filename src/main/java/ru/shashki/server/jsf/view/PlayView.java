@@ -9,7 +9,7 @@ import ru.shashki.server.jsf.util.shashki.Square;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +18,7 @@ import javax.faces.bean.ViewScoped;
  * Time: 7:05
  */
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class PlayView extends BaseView {
 
     private DefaultSnapModel model;

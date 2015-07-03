@@ -5,17 +5,20 @@ import org.primefaces.model.StreamedContent;
 import org.primefaces.push.EventBus;
 import org.primefaces.push.EventBusFactory;
 import ru.shashki.server.component.chat.ChatUsers;
+import ru.shashki.server.entity.Shashist;
 import ru.shashki.server.service.ShashistService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class ChatView extends BaseView {
 
     private final EventBus eventBus = EventBusFactory.getDefault().eventBus();
@@ -101,11 +104,16 @@ public class ChatView extends BaseView {
     }
 
     public StreamedContent getShashistPhoto() {
-        System.out.println(FacesContext.getCurrentInstance().getCurrentPhaseId());
         FacesContext context = FacesContext.getCurrentInstance();
-        String id = context.getExternalContext().getRequestParameterMap().get("shashistId");
-        System.out.println(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap());
-
-        return new DefaultStreamedContent();
+        if (context.getCurrentPhaseId() == PhaseId.RENDER_RESPONSE) {
+            // So, we're rendering the HTML. Return a stub StreamedContent so that it will generate right URL.
+            return new DefaultStreamedContent();
+        }
+        else {
+            // So, browser is requesting the image. Return a real StreamedContent with the image bytes.
+            String studentId = context.getExternalContext().getRequestParameterMap().get("shashistId");
+            Shashist student = shashistService.find(Long.valueOf(studentId));
+            return new DefaultStreamedContent(new ByteArrayInputStream(student.getPhoto()));
+        }
     }
 }
